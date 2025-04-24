@@ -1,0 +1,83 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div class="datasets-container">
+    <h1 class="page-title">Datasets</h1>
+    
+    <div class="datasets-actions">
+        <a href="{% url 'app:upload' %}" class="btn btn-primary">
+            <i class="fas fa-upload"></i> Upload New Data
+        </a>
+        
+        <div class="datasets-search">
+            <div class="input-group">
+                <input type="text" id="datasetSearch" class="form-control" placeholder="Search datasets...">
+                <button class="btn btn-outline-secondary" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="datasets-table-container">
+        <div class="table-responsive">
+            <table class="table datasets-table" id="datasetsTable">
+                <thead>
+                    <tr>
+                        <th>Common Name</th>
+                        <th>Scientific Name</th>
+                        <th>Species</th>
+                        <th>Family</th>
+                        <th>Genus</th>
+                        <th>Population</th>
+                        <th>Coordinates</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tree in trees %}
+                    <tr>
+                        <td>{{ tree.common_name }}</td>
+                        <td><em>{{ tree.scientific_name }}</em></td>
+                        <td>{{ tree.species }}</td>
+                        <td>{{ tree.family }}</td>
+                        <td>{{ tree.genus }}</td>
+                        <td>{{ tree.population }}</td>
+                        <td>{{ tree.latitude }}, {{ tree.longitude }}</td>
+                        <td>{{ tree.year }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simple table search functionality
+        const searchInput = document.getElementById('datasetSearch');
+        const table = document.getElementById('datasetsTable');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            for (let i = 0; i < rows.length; i++) {
+                const rowText = rows[i].textContent.toLowerCase();
+                if (rowText.indexOf(searchTerm) > -1) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

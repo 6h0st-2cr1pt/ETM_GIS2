@@ -1,0 +1,178 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1 class="page-title">Dashboard</h1>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-tree"></i>
+            </div>
+            <div class="stat-content">
+                <h2>{{ total_trees }}</h2>
+                <p>Total Tree Records</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <div class="stat-content">
+                <h2>{{ unique_species }}</h2>
+                <p>Unique Species</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="stat-content">
+                <h2>{{ tree_population }}</h2>
+                <p>Total Population</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-charts-container">
+        <div class="dashboard-chart">
+            <h3>Population by Year</h3>
+            <canvas id="populationChart"></canvas>
+        </div>
+        
+        <div class="dashboard-chart">
+            <h3>Species Distribution</h3>
+            <canvas id="speciesChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="dashboard-table-container">
+        <h3>Recent Records</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Common Name</th>
+                        <th>Scientific Name</th>
+                        <th>Species</th>
+                        <th>Population</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tree in recent_trees %}
+                    <tr>
+                        <td>{{ tree.common_name }}</td>
+                        <td><em>{{ tree.scientific_name }}</em></td>
+                        <td>{{ tree.species }}</td>
+                        <td>{{ tree.population }}</td>
+                        <td>{{ tree.year }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch data from the API
+        fetch('/api/analytics/data/')
+            .then(response => response.json())
+            .then(data => {
+                // Population by year chart
+                const populationYears = data.population_by_year.map(item => item.year);
+                const populationValues = data.population_by_year.map(item => item.total);
+                
+                const populationCtx = document.getElementById('populationChart').getContext('2d');
+                new Chart(populationCtx, {
+                    type: 'line',
+                    data: {
+                        labels: populationYears,
+                        datasets: [{
+                            label: 'Total Population',
+                            data: populationValues,
+                            borderColor: '#4e73df',
+                            backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#4e73df',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: document.documentElement.dataset.theme === 'dark' ? '#fff' : '#333'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: document.documentElement.dataset.theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                                },
+                                ticks: {
+                                    color: document.documentElement.dataset.theme === 'dark' ? '#fff' : '#333'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: document.documentElement.dataset.theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                                },
+                                ticks: {
+                                    color: document.documentElement.dataset.theme === 'dark' ? '#fff' : '#333'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Species distribution chart
+                const speciesLabels = data.species_count.map(item => item.species);
+                const speciesCounts = data.species_count.map(item => item.count);
+                
+                const speciesCtx = document.getElementById('speciesChart').getContext('2d');
+                new Chart(speciesCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: speciesLabels,
+                        datasets: [{
+                            data: speciesCounts,
+                            backgroundColor: [
+                                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                                '#5a5c69', '#858796', '#6f42c1', '#20c9a6', '#3c79dc'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: document.documentElement.dataset.theme === 'dark' ? '#fff' : '#333'
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    });
+</script>
+{% endblock %}

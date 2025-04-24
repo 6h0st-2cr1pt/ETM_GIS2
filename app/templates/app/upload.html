@@ -1,0 +1,176 @@
+{% extends 'app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="upload-container">
+    <h1 class="page-title">Upload Data</h1>
+    
+    <div class="upload-content">
+        <div class="upload-section">
+            <div class="upload-card">
+                <div class="upload-card-header">
+                    <h2>Upload CSV</h2>
+                    <p>Upload a CSV file with tree data. The file must have the correct headers as shown below.</p>
+                </div>
+                
+                <div class="csv-upload-area" id="dropzone">
+                    <form method="post" enctype="multipart/form-data" id="csv-upload-form">
+                        {% csrf_token %}
+                        <div class="drag-drop-area">
+                            <div class="drag-drop-icon">
+                                <i class="fas fa-file-csv"></i>
+                            </div>
+                            <div class="drag-drop-text">
+                                <p>Drag & Drop your CSV file here</p>
+                                <p>or</p>
+                                <label for="csv_file" class="btn btn-outline-primary">Browse Files</label>
+                                <input type="file" name="csv_file" id="csv_file" class="d-none" accept=".csv">
+                            </div>
+                        </div>
+                        
+                        <div class="selected-file" id="selected-file-info">
+                            <p>No file selected</p>
+                        </div>
+                        
+                        <div class="upload-actions">
+                            <button type="submit" name="submit_csv" class="btn btn-primary" id="upload-csv-btn" disabled>
+                                <i class="fas fa-upload"></i> Upload CSV
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="csv-format-info">
+                    <h4>Required CSV Format</h4>
+                    <p>Your CSV file should have the following columns:</p>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>common_name</th>
+                                    <th>scientific_name</th>
+                                    <th>species</th>
+                                    <th>family</th>
+                                    <th>genus</th>
+                                    <th>population</th>
+                                    <th>latitude</th>
+                                    <th>longitude</th>
+                                    <th>year (optional)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Narra</td>
+                                    <td>Pterocarpus indicus</td>
+                                    <td>indicus</td>
+                                    <td>Fabaceae</td>
+                                    <td>Pterocarpus</td>
+                                    <td>120</td>
+                                    <td>10.3157</td>
+                                    <td>123.8854</td>
+                                    <td>2023</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="upload-section">
+            <div class="upload-card">
+                <div class="upload-card-header">
+                    <h2>Manual Entry</h2>
+                    <p>Add a single tree record by filling out the form below.</p>
+                </div>
+                
+                <div class="manual-entry-form">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ tree_form|crispy }}
+                        
+                        <div class="form-actions">
+                            <button type="submit" name="submit_manual" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Record
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('csv_file');
+        const fileInfo = document.getElementById('selected-file-info');
+        const uploadBtn = document.getElementById('upload-csv-btn');
+        
+        // File input change handler
+        fileInput.addEventListener('change', function() {
+            handleFileSelect(this.files);
+        });
+        
+        // Drag and drop handlers
+        dropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('drag-over');
+        });
+        
+        dropzone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+        });
+        
+        dropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            fileInput.files = files;
+            handleFileSelect(files);
+        });
+        
+        function handleFileSelect(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // Check if file is CSV
+                if (file.name.endsWith('.csv')) {
+                    fileInfo.innerHTML = `
+                        <div class="selected-file-details">
+                            <i class="fas fa-file-csv"></i>
+                            <span>${file.name} (${formatFileSize(file.size)})</span>
+                        </div>
+                    `;
+                    uploadBtn.disabled = false;
+                } else {
+                    fileInfo.innerHTML = `
+                        <div class="selected-file-error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Please select a CSV file</span>
+                        </div>
+                    `;
+                    uploadBtn.disabled = true;
+                }
+            } else {
+                fileInfo.innerHTML = '<p>No file selected</p>';
+                uploadBtn.disabled = true;
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+    });
+</script>
+{% endblock %}

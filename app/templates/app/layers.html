@@ -1,0 +1,110 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div class="layers-container">
+    <h1 class="page-title">Layer Control</h1>
+    
+    <div class="layers-content">
+        <div class="layer-description">
+            <p>Add, remove, and manage map layers for your GIS visualization. Toggle layers to customize your view.</p>
+        </div>
+        
+        <div class="layers-panel">
+            <div class="layers-list">
+                <div class="layer-item active">
+                    <div class="layer-header">
+                        <span class="layer-name">Base Map (Dark)</span>
+                        <div class="layer-actions">
+                            <button class="btn layer-btn" disabled>Default</button>
+                        </div>
+                    </div>
+                </div>
+                
+                {% for layer in layers %}
+                <div class="layer-item">
+                    <div class="layer-header">
+                        <span class="layer-name">{{ layer.name }}</span>
+                        <div class="layer-actions">
+                            <button class="btn layer-btn toggle-layer" data-layer-id="{{ layer.id }}">
+                                {% if layer.is_active %}
+                                <i class="fas fa-toggle-on"></i> Active
+                                {% else %}
+                                <i class="fas fa-toggle-off"></i> Inactive
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="layer-description">
+                        <p>{{ layer.description|default:"No description available." }}</p>
+                        <p class="layer-type">Type: {{ layer.get_layer_type_display }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-layers-message">
+                    <p>No additional layers available. Add layers through the admin interface.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="layer-preview">
+                <h3>Layer Preview</h3>
+                <div id="layerPreviewMap" class="layer-preview-map"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize preview map
+        const previewMap = L.map('layerPreviewMap', {
+            center: [10.0, 123.0],
+            zoom: 8,
+            zoomControl: false,
+            attributionControl: false
+        });
+        
+        // Add dark base map
+        const baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(previewMap);
+        
+        // Layer toggle functionality
+        document.querySelectorAll('.toggle-layer').forEach(button => {
+            button.addEventListener('click', function() {
+                const layerId = this.getAttribute('data-layer-id');
+                const isActive = this.innerHTML.includes('fa-toggle-on');
+                
+                // Toggle the button state
+                if (isActive) {
+                    this.innerHTML = '<i class="fas fa-toggle-off"></i> Inactive';
+                } else {
+                    this.innerHTML = '<i class="fas fa-toggle-on"></i> Active';
+                }
+                
+                // In a real application, you would make an AJAX call to update the layer status
+                // And add/remove the layer from the preview map
+                
+                // This is just a simulation
+                if (!isActive) {
+                    // Add a sample layer to the preview map
+                    // This would be replaced with the actual layer in a real application
+                    const sampleLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 17,
+                        attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)'
+                    }).addTo(previewMap);
+                } else {
+                    // Remove sample layers (in real app, you'd remove specific layers)
+                    previewMap.eachLayer(function(layer) {
+                        if (layer !== baseLayer) {
+                            previewMap.removeLayer(layer);
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

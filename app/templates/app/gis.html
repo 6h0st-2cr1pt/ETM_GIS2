@@ -1,0 +1,170 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div class="gis-container">
+    <div class="map-controls">
+        <div class="tree-filter">
+            <h4>Filter Trees</h4>
+            <div class="tree-filter-list">
+                <div class="form-check custom-radio">
+                    <input class="form-check-input" type="radio" name="treeFilter" id="allTrees" value="all" checked>
+                    <label class="form-check-label" for="allTrees">
+                        All Trees
+                    </label>
+                </div>
+                
+                {% for name in tree_names %}
+                <div class="form-check custom-radio">
+                    <input class="form-check-input" type="radio" name="treeFilter" id="tree{{ forloop.counter }}" value="{{ name }}">
+                    <label class="form-check-label" for="tree{{ forloop.counter }}">
+                        {{ name }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div id="map" class="gis-map"></div>
+    
+    <div class="layer-controls">
+        <h4>Map Layers</h4>
+        <div class="layer-controls-list">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="baseLayer" checked disabled>
+                <label class="form-check-label" for="baseLayer">
+                    Base Map (Dark)
+                </label>
+            </div>
+            
+            {% for layer in layers %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="layer{{ layer.id }}" value="{{ layer.id }}">
+                <label class="form-check-label" for="layer{{ layer.id }}">
+                    {{ layer.name }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the map centered on Negros Island, Philippines
+        // Negros Island coordinates: approximately 10.0° N, 123.0° E
+        const map = L.map('map', {
+            center: [10.0, 123.0],
+            zoom: 9,
+            zoomControl: false,  // We'll add custom controls
+            attributionControl: false
+        });
+        
+        // Add attribution control to the bottom right
+        L.control.attribution({
+            position: 'bottomright'
+        }).addTo(map);
+        
+        // Add zoom control to the right
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(map);
+        
+        // Add the dark theme base map
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Create a layer group for tree markers
+        const treeLayer = L.layerGroup().addTo(map);
+        
+        // Custom marker icon
+        const treeIcon = L.divIcon({
+            className: 'custom-tree-marker',
+            html: '<i class="fas fa-tree"></i>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30]
+        });
+        
+        // Load all trees by default
+        loadTrees();
+        
+        // Tree filter change event
+        document.querySelectorAll('input[name="treeFilter"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const filterValue = this.value;
+                treeLayer.clearLayers();
+                
+                if (filterValue === 'all') {
+                    loadTrees();
+                } else {
+                    loadFilteredTrees(filterValue);
+                }
+            });
+        });
+        
+        // Layer control change event
+        document.querySelectorAll('.layer-controls-list input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const layerId = this.value;
+                // In a real application, you would load different map layers here
+                console.log(`Layer ${layerId} ${this.checked ? 'enabled' : 'disabled'}`);
+            });
+        });
+        
+        // Function to load all trees
+        function loadTrees() {
+            fetch('/api/trees/')
+                .then(response => response.json())
+                .then(data => {
+                    addTreesToMap(data);
+                })
+                .catch(error => console.error('Error loading trees:', error));
+        }
+        
+        // Function to load filtered trees
+        function loadFilteredTrees(name) {
+            fetch(`/api/trees/filter/${name}/`)
+                .then(response => response.json())
+                .then(data => {
+                    addTreesToMap(data);
+                })
+                .catch(error => console.error('Error loading filtered trees:', error));
+        }
+        
+        // Function to add tree markers to the map
+        function addTreesToMap(geojson) {
+            L.geoJSON(geojson, {
+                pointToLayer: function(feature, latlng) {
+                    return L.marker(latlng, { icon: treeIcon });
+                },
+                onEachFeature: function(feature, layer) {
+                    const properties = feature.properties;
+                    
+                    // Create popup content
+                    const popupContent = `
+                        <div class="tree-popup">
+                            <h3>${properties.common_name}</h3>
+                            <p><em>${properties.scientific_name}</em></p>
+                            <table class="popup-table">
+                                <tr><td>Species:</td><td>${properties.species}</td></tr>
+                                <tr><td>Family:</td><td>${properties.family}</td></tr>
+                                <tr><td>Genus:</td><td>${properties.genus}</td></tr>
+                                <tr><td>Population:</td><td>${properties.population}</td></tr>
+                                <tr><td>Year:</td><td>${properties.year}</td></tr>
+                            </table>
+                        </div>
+                    `;
+                    
+                    // Bind popup to marker
+                    layer.bindPopup(popupContent);
+                }
+            }).addTo(treeLayer);
+        }
+    });
+</script>
+{% endblock %}

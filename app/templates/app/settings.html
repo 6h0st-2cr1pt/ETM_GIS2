@@ -1,0 +1,217 @@
+{% extends 'app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="settings-container">
+    <h1 class="page-title">Settings</h1>
+    
+    <div class="settings-content">
+        <div class="settings-section">
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h2>Application Theme</h2>
+                    <p>Choose the theme for the application interface.</p>
+                </div>
+                
+                <div class="theme-settings">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="theme-options">
+                            <div class="theme-option{% if theme == 'dark' %} active{% endif %}">
+                                <input type="radio" name="theme" id="theme-dark" value="dark" {% if theme == 'dark' %}checked{% endif %} class="theme-radio">
+                                <label for="theme-dark" class="theme-label">
+                                    <div class="theme-preview dark-theme-preview">
+                                        <div class="theme-preview-sidebar"></div>
+                                        <div class="theme-preview-content"></div>
+                                    </div>
+                                    <span class="theme-name">Dark Theme</span>
+                                </label>
+                            </div>
+                            
+                            <div class="theme-option{% if theme == 'light' %} active{% endif %}">
+                                <input type="radio" name="theme" id="theme-light" value="light" {% if theme == 'light' %}checked{% endif %} class="theme-radio">
+                                <label for="theme-light" class="theme-label">
+                                    <div class="theme-preview light-theme-preview">
+                                        <div class="theme-preview-sidebar"></div>
+                                        <div class="theme-preview-content"></div>
+                                    </div>
+                                    <span class="theme-name">Light Theme</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Theme
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h2>Map Settings</h2>
+                    <p>Configure default map settings and behavior.</p>
+                </div>
+                
+                <div class="map-settings">
+                    <form>
+                        <div class="form-group mb-3">
+                            <label for="defaultZoom" class="form-label">Default Zoom Level</label>
+                            <input type="range" class="form-range" min="5" max="15" step="1" id="defaultZoom" value="9">
+                            <div class="d-flex justify-content-between">
+                                <span>5 (Far)</span>
+                                <span>15 (Close)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="defaultCenter" class="form-label">Default Center</label>
+                            <select class="form-select" id="defaultCenter">
+                                <option value="negros" selected>Negros Island</option>
+                                <option value="custom">Custom Location</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3 custom-center d-none">
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="centerLat" class="form-label">Latitude</label>
+                                    <input type="number" class="form-control" id="centerLat" placeholder="10.0" step="0.0001">
+                                </div>
+                                <div class="col-6">
+                                    <label for="centerLng" class="form-label">Longitude</label>
+                                    <input type="number" class="form-control" id="centerLng" placeholder="123.0" step="0.0001">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="saveMapSettings">
+                                <i class="fas fa-save"></i> Save Map Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h2>Display Settings</h2>
+                    <p>Configure how data is displayed in the application.</p>
+                </div>
+                
+                <div class="display-settings">
+                    <form>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="showScientificNames" checked>
+                            <label class="form-check-label" for="showScientificNames">Show Scientific Names</label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="enableAnimations" checked>
+                            <label class="form-check-label" for="enableAnimations">Enable UI Animations</label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="highContrastMode">
+                            <label class="form-check-label" for="highContrastMode">High Contrast Mode</label>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="fontSizeScale" class="form-label">Font Size Scale</label>
+                            <input type="range" class="form-range" min="80" max="120" step="10" id="fontSizeScale" value="100">
+                            <div class="d-flex justify-content-between">
+                                <span>Smaller</span>
+                                <span>Larger</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="saveDisplaySettings">
+                                <i class="fas fa-save"></i> Save Display Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Theme selection
+        const themeOptions = document.querySelectorAll('.theme-option');
+        const themeRadios = document.querySelectorAll('.theme-radio');
+        
+        themeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Remove active class from all options
+                themeOptions.forEach(option => option.classList.remove('active'));
+                
+                // Add active class to selected option
+                if (this.checked) {
+                    this.closest('.theme-option').classList.add('active');
+                }
+            });
+        });
+        
+        // Map settings
+        const defaultCenterSelect = document.getElementById('defaultCenter');
+        const customCenterDiv = document.querySelector('.custom-center');
+        
+        defaultCenterSelect.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customCenterDiv.classList.remove('d-none');
+            } else {
+                customCenterDiv.classList.add('d-none');
+            }
+        });
+        
+        // Save Map Settings button
+        document.getElementById('saveMapSettings').addEventListener('click', function() {
+            // In a real application, you would save these settings to the database
+            // This is just a simulation
+            showNotification('Map settings saved successfully!');
+        });
+        
+        // Save Display Settings button
+        document.getElementById('saveDisplaySettings').addEventListener('click', function() {
+            // In a real application, you would save these settings to the database
+            // This is just a simulation
+            showNotification('Display settings saved successfully!');
+        });
+        
+        // Helper function to show a notification
+        function showNotification(message) {
+            const notificationContainer = document.createElement('div');
+            notificationContainer.className = 'notification-container';
+            
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-success alert-dismissible fade show notification';
+            notification.setAttribute('role', 'alert');
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            notificationContainer.appendChild(notification);
+            document.querySelector('.main-content').prepend(notificationContainer);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(notification);
+                bsAlert.close();
+            }, 5000);
+        }
+    });
+</script>
+{% endblock %}
