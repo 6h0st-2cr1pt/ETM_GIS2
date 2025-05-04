@@ -1,12 +1,16 @@
 {% extends 'app/base.html' %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/dashboard.css">
+{% endblock %}
+
 {% block content %}
 <div class="dashboard-container">
     <h1 class="page-title">Dashboard</h1>
     
     <div class="dashboard-stats">
         <div class="stat-card">
-            <div class="stat-icon">
+            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(0, 184, 148, 0.9), rgba(0, 206, 201, 0.7)); color: white; border-radius: 8px; padding: 10px; box-shadow: 0 4px 10px rgba(0, 184, 148, 0.3);">
                 <i class="fas fa-tree"></i>
             </div>
             <div class="stat-content">
@@ -16,7 +20,7 @@
         </div>
         
         <div class="stat-card">
-            <div class="stat-icon">
+            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(0, 184, 148, 0.9), rgba(0, 206, 201, 0.7)); color: white; border-radius: 8px; padding: 10px; box-shadow: 0 4px 10px rgba(0, 184, 148, 0.3);">
                 <i class="fas fa-leaf"></i>
             </div>
             <div class="stat-content">
@@ -26,12 +30,22 @@
         </div>
         
         <div class="stat-card">
-            <div class="stat-icon">
+            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(0, 184, 148, 0.9), rgba(0, 206, 201, 0.7)); color: white; border-radius: 8px; padding: 10px; box-shadow: 0 4px 10px rgba(0, 184, 148, 0.3);">
                 <i class="fas fa-seedling"></i>
             </div>
             <div class="stat-content">
                 <h2>{{ tree_population }}</h2>
                 <p>Total Population</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(46, 134, 222, 0.9), rgba(83, 82, 237, 0.7)); color: white; border-radius: 8px; padding: 10px; box-shadow: 0 4px 10px rgba(46, 134, 222, 0.3);">
+                <i class="fas fa-heartbeat"></i>
+            </div>
+            <div class="stat-content">
+                <h2>{{ health_percentage }}%</h2>
+                <p>Trees in Good Health</p>
             </div>
         </div>
     </div>
@@ -46,6 +60,11 @@
             <h3>Species Distribution</h3>
             <canvas id="speciesChart"></canvas>
         </div>
+        
+        <div class="dashboard-chart">
+            <h3>Health Status Distribution</h3>
+            <canvas id="healthChart"></canvas>
+        </div>
     </div>
     
     <div class="dashboard-table-container">
@@ -56,23 +75,39 @@
                     <tr>
                         <th>Common Name</th>
                         <th>Scientific Name</th>
-                        <th>Species</th>
                         <th>Population</th>
+                        <th>Health Status</th>
                         <th>Year</th>
+                        <th>Notes</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for tree in recent_trees %}
                     <tr>
-                        <td>{{ tree.common_name }}</td>
-                        <td><em>{{ tree.scientific_name }}</em></td>
-                        <td>{{ tree.species }}</td>
+                        <td>{{ tree.species.common_name }}</td>
+                        <td><em>{{ tree.species.scientific_name }}</em></td>
                         <td>{{ tree.population }}</td>
+                        <td>
+                            {% if tree.health_status == 'very_poor' %}
+                                <span class="badge bg-danger">Very Poor</span>
+                            {% elif tree.health_status == 'poor' %}
+                                <span class="badge bg-warning text-dark">Poor</span>
+                            {% elif tree.health_status == 'good' %}
+                                <span class="badge bg-success">Good</span>
+                            {% elif tree.health_status == 'very_good' %}
+                                <span class="badge bg-primary">Very Good</span>
+                            {% elif tree.health_status == 'excellent' %}
+                                <span class="badge bg-info">Excellent</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Unknown</span>
+                            {% endif %}
+                        </td>
                         <td>{{ tree.year }}</td>
+                        <td>{{ tree.notes|truncatechars:30 }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center">No data available</td>
+                        <td colspan="6" class="text-center">No data available</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -84,95 +119,8 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Fetch data from the API
-        fetch('/api/analytics/data/')
-            .then(response => response.json())
-            .then(data => {
-                // Population by year chart
-                const populationYears = data.population_by_year.map(item => item.year);
-                const populationValues = data.population_by_year.map(item => item.total);
-                
-                const populationCtx = document.getElementById('populationChart').getContext('2d');
-                new Chart(populationCtx, {
-                    type: 'line',
-                    data: {
-                        labels: populationYears,
-                        datasets: [{
-                            label: 'Total Population',
-                            data: populationValues,
-                            borderColor: '#4e73df',
-                            backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                            borderWidth: 2,
-                            pointBackgroundColor: '#4e73df',
-                            tension: 0.3,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    color: document.documentElement.dataset.theme === 'dark' ? '#fff' : '#333'
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: {
-                                    color: document.documentElement.dataset.theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                                },
-                                ticks: {
-                                    color: document.documentElement.dataset.theme === 'dark' ? '#fff' : '#333'
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: document.documentElement.dataset.theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                                },
-                                ticks: {
-                                    color: document.documentElement.dataset.theme === 'dark' ? '#fff' : '#333'
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                // Species distribution chart
-                const speciesLabels = data.species_count.map(item => item.species);
-                const speciesCounts = data.species_count.map(item => item.count);
-                
-                const speciesCtx = document.getElementById('speciesChart').getContext('2d');
-                new Chart(speciesCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: speciesLabels,
-                        datasets: [{
-                            data: speciesCounts,
-                            backgroundColor: [
-                                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-                                '#5a5c69', '#858796', '#6f42c1', '#20c9a6', '#3c79dc'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: {
-                                    color: document.documentElement.dataset.theme === 'dark' ? '#fff' : '#333'
-                                }
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    });
+    // Pass health data to JavaScript
+    const healthData = JSON.parse('{{ health_data|safe }}');
 </script>
+<script src="/static/js/dashboard.js"></script>
 {% endblock %}

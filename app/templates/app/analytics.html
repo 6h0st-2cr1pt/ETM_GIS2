@@ -1,5 +1,9 @@
 {% extends 'app/base.html' %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/analytics.css">
+{% endblock %}
+
 {% block content %}
 <div class="analytics-container">
     <h1 class="page-title">Analytics</h1>
@@ -30,6 +34,32 @@
         </div>
     </div>
     
+    <div class="analytics-advanced-container">
+        <h2>Environmental Science Analytics</h2>
+        
+        <div class="analytics-charts-container">
+            <div class="analytics-chart-card">
+                <h3>Species Conservation Status</h3>
+                <canvas id="conservationStatusChart"></canvas>
+            </div>
+            
+            <div class="analytics-chart-card">
+                <h3>Annual Growth Rate</h3>
+                <canvas id="growthRateChart"></canvas>
+            </div>
+            
+            <div class="analytics-chart-card">
+                <h3>Biodiversity Index</h3>
+                <canvas id="biodiversityChart"></canvas>
+            </div>
+            
+            <div class="analytics-chart-card">
+                <h3>Ecological Distribution</h3>
+                <canvas id="ecologicalDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
     <div class="analytics-metrics-container">
         <div class="metrics-card">
             <h3>Tree Distribution Map</h3>
@@ -45,254 +75,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Fetch analytics data
-        fetch('/api/analytics/data/')
-            .then(response => response.json())
-            .then(data => {
-                // Create charts with the fetched data
-                createPopulationTimeChart(data.population_by_year);
-                createSpeciesCountChart(data.species_count);
-                createFamilyDistributionChart(data.population_by_family);
-                createSpeciesRichnessChart(data.population_by_year);
-                createDistributionMap();
-            })
-            .catch(error => console.error('Error fetching analytics data:', error));
-        
-        // Population growth over time chart
-        function createPopulationTimeChart(data) {
-            const ctx = document.getElementById('populationTimeChart').getContext('2d');
-            
-            const years = data.map(item => item.year);
-            const populations = data.map(item => item.total);
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Population',
-                        data: populations,
-                        borderColor: '#36A2EB',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#fff'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#fff'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#fff'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Species count chart
-        function createSpeciesCountChart(data) {
-            const ctx = document.getElementById('speciesCountChart').getContext('2d');
-            
-            const species = data.map(item => item.species);
-            const counts = data.map(item => item.count);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: species,
-                    datasets: [{
-                        label: 'Number of Trees',
-                        data: counts,
-                        backgroundColor: [
-                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                            '#FF9F40', '#8AC249', '#EA526F', '#23B5D3', '#279AF1'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#fff'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#fff'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#fff'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Family distribution chart
-        function createFamilyDistributionChart(data) {
-            const ctx = document.getElementById('familyDistributionChart').getContext('2d');
-            
-            const families = data.map(item => item.family);
-            const populations = data.map(item => item.total);
-            
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: families,
-                    datasets: [{
-                        data: populations,
-                        backgroundColor: [
-                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                            '#FF9F40', '#8AC249', '#EA526F', '#23B5D3', '#279AF1'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                color: '#fff'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Species richness over time chart
-        function createSpeciesRichnessChart(data) {
-            const ctx = document.getElementById('speciesRichnessChart').getContext('2d');
-            
-            // This is a placeholder since we don't have actual species richness over time
-            // In a real application, you would calculate this from the data
-            const years = data.map(item => item.year);
-            // Generate some sample data
-            const richness = years.map(year => Math.floor(Math.random() * 50) + 10);
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Species Richness',
-                        data: richness,
-                        borderColor: '#FF6384',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#fff'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#fff'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#fff'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Create a small distribution map
-        function createDistributionMap() {
-            // Create a small map centered on Negros Island
-            const distributionMap = L.map('distributionMap', {
-                center: [10.0, 123.0],
-                zoom: 8,
-                zoomControl: false,
-                attributionControl: false
-            });
-            
-            // Add dark base map
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                maxZoom: 19
-            }).addTo(distributionMap);
-            
-            // Add tree points as a heatmap (simplified approach)
-            fetch('/api/trees/')
-                .then(response => response.json())
-                .then(data => {
-                    // Extract coordinates for each tree
-                    const points = data.features.map(feature => {
-                        const coords = feature.geometry.coordinates;
-                        return [coords[1], coords[0]]; // [lat, lng]
-                    });
-                    
-                    // Add markers to the map with small size
-                    points.forEach(point => {
-                        L.circleMarker(point, {
-                            radius: 3,
-                            color: '#FF6384',
-                            fillColor: '#FF6384',
-                            fillOpacity: 0.8
-                        }).addTo(distributionMap);
-                    });
-                })
-                .catch(error => console.error('Error creating distribution map:', error));
-        }
-    });
-</script>
+<script src="/static/js/analytics.js"></script>
 {% endblock %}

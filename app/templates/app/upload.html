@@ -1,176 +1,195 @@
 {% extends 'app/base.html' %}
 {% load crispy_forms_tags %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/upload.css">
+{% endblock %}
+
 {% block content %}
 <div class="upload-container">
-    <h1 class="page-title">Upload Data</h1>
-    
-    <div class="upload-content">
-        <div class="upload-section">
-            <div class="upload-card">
-                <div class="upload-card-header">
-                    <h2>Upload CSV</h2>
-                    <p>Upload a CSV file with tree data. The file must have the correct headers as shown below.</p>
-                </div>
-                
-                <div class="csv-upload-area" id="dropzone">
-                    <form method="post" enctype="multipart/form-data" id="csv-upload-form">
-                        {% csrf_token %}
-                        <div class="drag-drop-area">
-                            <div class="drag-drop-icon">
-                                <i class="fas fa-file-csv"></i>
-                            </div>
-                            <div class="drag-drop-text">
-                                <p>Drag & Drop your CSV file here</p>
-                                <p>or</p>
-                                <label for="csv_file" class="btn btn-outline-primary">Browse Files</label>
-                                <input type="file" name="csv_file" id="csv_file" class="d-none" accept=".csv">
-                            </div>
-                        </div>
-                        
-                        <div class="selected-file" id="selected-file-info">
-                            <p>No file selected</p>
-                        </div>
-                        
-                        <div class="upload-actions">
-                            <button type="submit" name="submit_csv" class="btn btn-primary" id="upload-csv-btn" disabled>
-                                <i class="fas fa-upload"></i> Upload CSV
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="csv-format-info">
-                    <h4>Required CSV Format</h4>
-                    <p>Your CSV file should have the following columns:</p>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>common_name</th>
-                                    <th>scientific_name</th>
-                                    <th>species</th>
-                                    <th>family</th>
-                                    <th>genus</th>
-                                    <th>population</th>
-                                    <th>latitude</th>
-                                    <th>longitude</th>
-                                    <th>year (optional)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Narra</td>
-                                    <td>Pterocarpus indicus</td>
-                                    <td>indicus</td>
-                                    <td>Fabaceae</td>
-                                    <td>Pterocarpus</td>
-                                    <td>120</td>
-                                    <td>10.3157</td>
-                                    <td>123.8854</td>
-                                    <td>2023</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="upload-section">
-            <div class="upload-card">
-                <div class="upload-card-header">
-                    <h2>Manual Entry</h2>
-                    <p>Add a single tree record by filling out the form below.</p>
-                </div>
-                
-                <div class="manual-entry-form">
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ tree_form|crispy }}
-                        
-                        <div class="form-actions">
-                            <button type="submit" name="submit_manual" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Record
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+   <h1 class="page-title">Upload Data</h1>
+   
+   <div class="upload-content">
+       <div class="upload-section csv-upload-section">
+           <div class="upload-card">
+               <div class="upload-card-header">
+                   <h2>Upload CSV</h2>
+                   <p>Upload a CSV file with tree data. The file must have the correct headers as shown below.</p>
+               </div>
+               
+               <div class="csv-upload-area" id="dropzone">
+                   <form method="post" enctype="multipart/form-data" id="csv-upload-form">
+                       {% csrf_token %}
+                       <div class="drag-drop-area">
+                           <div class="drag-drop-icon">
+                               <i class="fas fa-file-csv"></i>
+                           </div>
+                           <div class="drag-drop-text">
+                               <p>Drag & Drop your CSV file here</p>
+                               <p>or</p>
+                               <label for="csv_file" class="btn btn-outline-primary">Browse Files</label>
+                               <input type="file" name="csv_file" id="csv_file" class="d-none" accept=".csv">
+                           </div>
+                       </div>
+                       
+                       <div class="selected-file" id="selected-file-info">
+                           <p>No file selected</p>
+                       </div>
+                       
+                       <div class="upload-actions">
+                           <button type="submit" name="submit_csv" class="btn btn-primary" id="upload-csv-btn" disabled>
+                               <i class="fas fa-upload"></i> Upload CSV
+                           </button>
+                       </div>
+                   </form>
+               </div>
+               
+               <div class="csv-format-info">
+                   <h4>Required CSV Format</h4>
+                   <p>Your CSV file should have the following columns:</p>
+                   <div class="table-responsive">
+                       <table class="table table-sm">
+                           <thead>
+                               <tr>
+                                   <th>common_name</th>
+                                   <th>scientific_name</th>
+                                   <th>family</th>
+                                   <th>genus</th>
+                                   <th>population</th>
+                                   <th>health_status</th>
+                                   <th>latitude</th>
+                                   <th>longitude</th>
+                                   <th>year</th>
+                                   <th>notes</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               <tr>
+                                   <td>Tindalo</td>
+                                   <td>Afzelia rhomboidea</td>
+                                   <td>Fabaceae</td>
+                                   <td>Afzelia</td>
+                                   <td>120</td>
+                                   <td>good</td>
+                                   <td>10.4234</td>
+                                   <td>123.1234</td>
+                                   <td>2023</td>
+                                   <td>Healthy population</td>
+                               </tr>
+                           </tbody>
+                       </table>
+                   </div>
+               </div>
+           </div>
+       </div>
+       
+       <div class="upload-section manual-entry-section">
+           <div class="upload-card">
+               <div class="upload-card-header">
+                   <h2>Manual Entry</h2>
+                   <p>Add a single tree record by filling out the form below.</p>
+               </div>
+               
+               <div class="manual-entry-form">
+                   <form method="post" id="manual-entry-form">
+                       {% csrf_token %}
+                       <div class="row">
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="common_name">Common Name</label>
+                                   <input type="text" name="common_name" id="common_name" class="form-control" required>
+                               </div>
+                           </div>
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="scientific_name">Scientific Name</label>
+                                   <input type="text" name="scientific_name" id="scientific_name" class="form-control" required>
+                               </div>
+                           </div>
+                       </div>
+                       
+                       <div class="row">
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="family">Family</label>
+                                   <input type="text" name="family" id="family" class="form-control" required>
+                               </div>
+                           </div>
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="genus">Genus</label>
+                                   <input type="text" name="genus" id="genus" class="form-control" required>
+                               </div>
+                           </div>
+                       </div>
+                       
+                       <div class="row">
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="population">Population</label>
+                                   <input type="number" name="population" id="population" class="form-control" min="1" required>
+                               </div>
+                           </div>
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="health_status">Health Status</label>
+                                   <select name="health_status" id="health_status" class="form-select" required>
+                                       <option value="very_poor">Very Poor</option>
+                                       <option value="poor">Poor</option>
+                                       <option value="good" selected>Good</option>
+                                       <option value="very_good">Very Good</option>
+                                       <option value="excellent">Excellent</option>
+                                   </select>
+                               </div>
+                           </div>
+                       </div>
+                       
+                       <div class="row">
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="year">Year</label>
+                                   <input type="number" name="year" id="year" class="form-control" required>
+                               </div>
+                           </div>
+                       </div>
+                       
+                       <div class="row">
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="latitude">Latitude</label>
+                                   <input type="number" name="latitude" id="latitude" class="form-control" step="0.000001" required>
+                               </div>
+                           </div>
+                           <div class="col-md-6">
+                               <div class="form-group mb-3">
+                                   <label for="longitude">Longitude</label>
+                                   <input type="number" name="longitude" id="longitude" class="form-control" step="0.000001" required>
+                               </div>
+                           </div>
+                       </div>
+                       
+                       <div class="row">
+                           <div class="col-12">
+                               <div class="form-group mb-3">
+                                   <label for="notes">Notes</label>
+                                   <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
+                               </div>
+                           </div>
+                       </div>
+                       
+                       <div class="form-actions">
+                           <button type="submit" name="submit_manual" class="btn btn-primary">
+                               <i class="fas fa-save"></i> Save Record
+                           </button>
+                       </div>
+                   </form>
+               </div>
+           </div>
+       </div>
+   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropzone = document.getElementById('dropzone');
-        const fileInput = document.getElementById('csv_file');
-        const fileInfo = document.getElementById('selected-file-info');
-        const uploadBtn = document.getElementById('upload-csv-btn');
-        
-        // File input change handler
-        fileInput.addEventListener('change', function() {
-            handleFileSelect(this.files);
-        });
-        
-        // Drag and drop handlers
-        dropzone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.add('drag-over');
-        });
-        
-        dropzone.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.remove('drag-over');
-        });
-        
-        dropzone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.remove('drag-over');
-            
-            const files = e.dataTransfer.files;
-            fileInput.files = files;
-            handleFileSelect(files);
-        });
-        
-        function handleFileSelect(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                
-                // Check if file is CSV
-                if (file.name.endsWith('.csv')) {
-                    fileInfo.innerHTML = `
-                        <div class="selected-file-details">
-                            <i class="fas fa-file-csv"></i>
-                            <span>${file.name} (${formatFileSize(file.size)})</span>
-                        </div>
-                    `;
-                    uploadBtn.disabled = false;
-                } else {
-                    fileInfo.innerHTML = `
-                        <div class="selected-file-error">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span>Please select a CSV file</span>
-                        </div>
-                    `;
-                    uploadBtn.disabled = true;
-                }
-            } else {
-                fileInfo.innerHTML = '<p>No file selected</p>';
-                uploadBtn.disabled = true;
-            }
-        }
-        
-        function formatFileSize(bytes) {
-            if (bytes < 1024) return bytes + ' bytes';
-            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-            else return (bytes / 1048576).toFixed(1) + ' MB';
-        }
-    });
-</script>
+<script src="/static/js/upload.js"></script>
 {% endblock %}

@@ -1,0 +1,265 @@
+/* Upload Styles */
+.upload-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-title {
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.upload-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Equal width columns */
+  gap: 2rem;
+}
+
+.upload-section {
+  width: 100%; /* Ensure both sections have the same width */
+}
+
+.upload-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2rem;
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.upload-card-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.upload-card-header h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.upload-card-header p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* CSV Upload Area */
+.csv-upload-area {
+  margin-bottom: 2rem;
+}
+
+.drag-drop-area {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.drag-drop-area:hover,
+.drag-drop-area.drag-over {
+  border-color: var(--color-primary);
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.drag-drop-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.drag-drop-text {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.drag-drop-text p {
+  margin-bottom: 0.75rem;
+}
+
+.selected-file {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: var(--border-radius-sm);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.selected-file-details {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.selected-file-error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-danger);
+  font-size: 1.1rem;
+}
+
+.upload-actions {
+  margin-top: 1.5rem;
+  text-align: right;
+}
+
+.upload-actions .btn {
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+}
+
+/* CSV Format Info */
+.csv-format-info {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.csv-format-info h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.csv-format-info .table {
+  margin-top: 1rem;
+  color: var(--text-primary);
+}
+
+.csv-format-info .table th {
+  font-size: 0.9rem;
+  color: var(--color-primary);
+}
+
+/* Manual Entry Form */
+.manual-entry-form {
+  margin-top: 1.5rem;
+}
+
+.manual-entry-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.manual-entry-form label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.manual-entry-form .form-control,
+.manual-entry-form .form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.manual-entry-form .form-control:focus,
+.manual-entry-form .form-select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.25);
+}
+
+.manual-entry-form textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  text-align: right;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.form-actions .btn {
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+}
+
+/* Light mode specific styles */
+html[data-theme="light"] .manual-entry-form .form-control,
+html[data-theme="light"] .manual-entry-form .form-select {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="light"] .drag-drop-area {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+html[data-theme="light"] .selected-file {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .upload-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .csv-format-info .table,
+html[data-theme="light"] .upload-card-header h2,
+html[data-theme="light"] .csv-format-info h4,
+html[data-theme="light"] .manual-entry-form label {
+  color: #333;
+}
+
+html[data-theme="light"] .upload-card-header p,
+html[data-theme="light"] .drag-drop-text,
+html[data-theme="light"] .drag-drop-icon {
+  color: #555;
+}
+
+/* Dark mode specific styles */
+html[data-theme="dark"] .manual-entry-form .form-control,
+html[data-theme="dark"] .manual-entry-form .form-select {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #f0f0f0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme="dark"] .csv-format-info .table,
+html[data-theme="dark"] .upload-card-header h2,
+html[data-theme="dark"] .csv-format-info h4,
+html[data-theme="dark"] .manual-entry-form label {
+  color: #f0f0f0;
+}
+
+html[data-theme="dark"] .upload-card-header p,
+html[data-theme="dark"] .drag-drop-text,
+html[data-theme="dark"] .drag-drop-icon {
+  color: #ccc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .upload-content {
+    grid-template-columns: 1fr;
+  }
+}
